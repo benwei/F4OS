@@ -5,6 +5,7 @@
 #include "types.h"
 #include "registers.h"
 #include "interrupt.h"
+#include "task.h"
 #include "mem.h"
 #include "context.h"
 #include "systick.h"
@@ -12,6 +13,7 @@
 #include "usermode.h"
 #include "usart.h"
 #include "spi.h"
+#include "tim.h"
 
 static void clock(void) __attribute__((section(".kernel")));
 static void power_led(void) __attribute__((section(".kernel")));
@@ -26,7 +28,8 @@ int main(void) {
     //mpu_setup();
     init_heap();
     init_usart();
-    init_spi();
+    //init_spi();
+    init_timer();
 
     puts("\r\n\r\n\r\nWelcome to...\r\n");
 
