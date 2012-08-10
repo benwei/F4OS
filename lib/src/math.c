@@ -1,10 +1,33 @@
-/* Most of these functions are based on Newlib 
+/* Parts of this file were compiled from various components of the Newlib project.
+ * Components released under various licenses and are copyright various authors.
+ *
+ * http://sourceware.org/cgi-bin/cvsweb.cgi/src/COPYING.NEWLIB?rev=1.31&content-type=text/x-cvsweb-markup&cvsroot=src
  * http://www.sourceware.org/newlib/   */
-
-/* CAUTION: Contents may cause eye bleeding */
 
 #include "types.h"
 #include "math.h"
+
+uint32_t pow(uint32_t base, uint32_t exp) {
+    int result = base;
+
+    if (exp == 0) {
+        return 1;
+    }
+
+    exp--;
+    while (exp) {
+        result = result * base;
+        exp--;
+    }
+
+    return result;
+}
+
+/* The remainder of this file was compiled from various components of the Newlib project.
+ * Components released under various licenses and are copyright various authors.
+ *
+ * http://sourceware.org/cgi-bin/cvsweb.cgi/src/COPYING.NEWLIB?rev=1.31&content-type=text/x-cvsweb-markup&cvsroot=src
+ * http://www.sourceware.org/newlib/   */
 
 static const float a[] = { -0.5527074855 };
 static const float b[] = { -0.6632718214e+1 };

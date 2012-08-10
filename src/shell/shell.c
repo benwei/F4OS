@@ -4,13 +4,33 @@
 #include "mem.h"
 #include "semaphore.h"
 #include "buddy.h"
-#include "usart.h"
+#include "stdio.h"
 #include "shell.h"
+
+/* Shell commands */
+#include "blink.h"
+#include "top.h"
+#include "uname.h"
+
+struct command {
+    char *name;
+    void (*fptr)(int, char **);
+};
+
+const struct command valid_commands[] = {{"blink",  &blink},
+                                         {"help",   &help},
+                                         {"top",    &top},
+                                         {"uname",  &uname}};
+#define NUM_COMMANDS    (sizeof(valid_commands)/sizeof(valid_commands[0]))
+
+static void free_argv(int argc, char ***argv);
+static void parse_command(char *command, int *argc, char ***argv);
+static void run_command(char *command, int argc, char **argv);
 
 void shell(void) {
     char *command = malloc(SHELL_BUF_MAX+1);
     int n = -1;
-    uint32_t argc;
+    int argc;
     char **argv;
 
     printf("%s", SHELL_PROMPT);
@@ -47,20 +67,15 @@ void shell(void) {
         }
 
         parse_command(command, &argc, &argv);
-
-        if (!argc) {
-        }
-        else if (argc < 0) {
+        if (argc < 0) {
+            /* Something bad happened, argv has already been freed */
             printf("%s: could not parse input\r\n", command);
         }
-        else if (!strncmp(argv[0], "uname", SHELL_BUF_MAX+1)) {
-            uname(argc, argv);
-        }
         else {
-            printf("%s: command not found\r\n", command);
+            run_command(command, argc, argv);
+            free_argv(argc, &argv);
         }
 
-        free_argv(argc, &argv);
         printf("%s", SHELL_PROMPT);
         n = -1;
     }
@@ -68,7 +83,7 @@ void shell(void) {
     free(command);
 }
 
-void free_argv(uint32_t argc, char ***argv) {
+void free_argv(int argc, char ***argv) {
     while (argc) {
         free((*argv)[argc-1]);
         argc--;
@@ -76,7 +91,7 @@ void free_argv(uint32_t argc, char ***argv) {
     free(*argv);
 }
 
-void parse_command(char *command, uint32_t *argc, char ***argv) {
+void parse_command(char *command, int *argc, char ***argv) {
     char *begin = command;
     uint32_t n = 0;
     *argc = 0;
@@ -124,7 +139,7 @@ void parse_command(char *command, uint32_t *argc, char ***argv) {
             printf("Memory error\r\n");
             (*argc)--;
             while (*argc) {
-                free(*argv[*argc-1]);
+                free((*argv)[*argc-1]);
                 (*argc)--;
             }
             free(*argv);
@@ -151,19 +166,25 @@ void parse_command(char *command, uint32_t *argc, char ***argv) {
     }
 }
 
-void uname(uint32_t argc, char **argv) {
-    if (argc > 1) {
-        if (!strncmp(argv[1], "-a", SHELL_ARG_BUF_MAX)) {
-            printf("F40S rev %d %s\r\n", BUILD_REV, BUILD_TIME);
-        }
-        else if (!strncmp(argv[1], "-r", SHELL_ARG_BUF_MAX)) {
-            printf("rev %d\r\n", BUILD_REV);
-        }
-        else {
-            printf("%s: unrecognized option '%s'\r\n", argv[0], argv[1]);
+void run_command(char *command, int argc, char **argv) {
+    if (!argc) {
+        return;
+    }
+
+    for (int i = 0; i < NUM_COMMANDS; i++) {
+        if (!strncmp(argv[0], valid_commands[i].name, SHELL_BUF_MAX+1)) {
+            valid_commands[i].fptr(argc, argv);
+            return;
         }
     }
-    else {
-        printf("F4OS\r\n");
+
+    printf("%s: command not found\r\n", argv[0]);
+}
+
+void help(int argc, char **argv) {
+    puts("Available commands:\r\n");
+
+    for (uint32_t i = 0; i < NUM_COMMANDS; i++) {
+        printf("%s\r\n", valid_commands[i].name);
     }
 }

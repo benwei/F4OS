@@ -3,6 +3,17 @@
 extern const uint32_t _skernel;
 extern const uint32_t _ekernel;
 
+inline uint8_t FAULTMASK(void) __attribute__((always_inline));
+inline uint8_t FAULTMASK(void) {
+    uint8_t val;
+
+    asm("mrs    %[val], faultmask"
+        :[val] "=r" (val)
+        ::);
+
+    return val;
+}
+
 /* Make a SVC call */
 #define _svc(x)                         asm volatile ("svc  %0  \n" :: "i" (x))
 
@@ -11,7 +22,7 @@ extern const uint32_t _ekernel;
 #define FLASH_BASE                      (uint32_t) (0x08000000)                                 /* Flash Memory Base Address */
 #define RAM_BASE                        (uint32_t) (0x20000000)                                 /* RAM Base Address */
 #define ETHRAM_BASE                     (uint32_t) (0x2001C000)                                 /* ETHRAM Base Address */
-#define CCMRAM_BASE                     (uint32_t) (0x10000000)                                 /* CCMRAM Base Address - Accessable only to CPU */
+#define CCMRAM_BASE                     (uint32_t) (0x10000000)                                 /* CCMRAM Base Address - Accessible only to CPU */
 
 /* Peripheral Map */
 #define PERIPH_BASE                     (uint32_t) (0x40000000)                                 /* Peripheral base address */
@@ -419,7 +430,7 @@ extern const uint32_t _ekernel;
 #define USART_SR_TC                     (uint32_t) (1 << 6)                                     /* USART Transmission Complete */
 #define USART_SR_RXNE                   (uint32_t) (1 << 5)                                     /* USART Read data register not empty */
 #define USART_CR1_UE                    (uint32_t) (1 << 13)                                    /* USART Enable */
-#define USART_CR1_RXNEIE                (uint32_t) (1 << 5)                                     /* RXNE Interrupt Enablr */
+#define USART_CR1_RXNEIE                (uint32_t) (1 << 5)                                     /* RXNE Interrupt Enable */
 #define USART_CR1_TE                    (uint32_t) (1 << 3)                                     /* USART Transmit Enable */
 #define USART_CR1_RE                    (uint32_t) (1 << 2)                                     /* USART Receive Enable */
 #define USART_CR3_DMAR_EN               (uint32_t) (1 << 6)                                     /* USART DMA Receive Enable */

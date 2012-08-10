@@ -1,5 +1,5 @@
 /* mem.h: memory operations definitions.
- * Convers mem.S and mem.c */
+ * Covers mem.S and mem.c */
 
 /* mem.S */
 extern void raise_privilege(void);
@@ -10,10 +10,10 @@ extern void disable_psp();
 
 /* mem.c */
 #define NULL                    (void *) 0x00000000
-#define STKSIZE                 64                      /* This is in words */
+#define STKSIZE                 128                      /* This is in words */
 
 void memset32(void *p, int32_t value, uint32_t size) __attribute__((section(".kernel")));
-void create_context(task_ctrl *task, void (*lptr)(void)) __attribute__((section(".kernel"), optimize(0)));
+void create_context(task_ctrl *task, void (*lptr)(void)) __attribute__((section(".kernel")));
 
 struct memlist {
     struct memlist *next;
