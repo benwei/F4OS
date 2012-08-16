@@ -13,9 +13,19 @@ typedef struct task_node_list {
     task_node   *tail;
 } task_node_list;
 
+
+struct semaphore {
+        uint8_t     lock;
+        task_node   *held_by;
+};
+
+typedef struct semaphore semaphore;
+
 typedef struct resource {
-    void        (*writer)(char*);
-    char        (*reader)(void);
+    semaphore   *sem;
+    void        *env;
+    void        (*writer)(char, void*);
+    char        (*reader)(void*);
 } resource;
    
 typedef struct task_struct {
@@ -26,6 +36,7 @@ typedef struct task_struct {
     uint32_t    ticks_until_wake;
     uint8_t     priority;
     uint8_t     running;
+    uint32_t    pid;
     task_node   *task_list_node;
     task_node   *periodic_node;
     resource    *resources[RESOURCE_TABLE_SIZE];

@@ -6,9 +6,9 @@
 #include "context.h"
 #include "semaphore.h"
 #include "buddy.h"
-#include "resource.h"
 #include "stdio.h"
 #include "mem.h"
+#include "resource.h"
 
 task_node * volatile task_to_free = NULL;
 uint8_t task_switching = 0;
@@ -57,16 +57,22 @@ void switch_task(void) {
      * which will be the head of the list, as
      * it is kept sorted.  Round-robin through
      * equal priority tasks. */
+
+    /* Temporary fix to ensure tim2_handler doesn't modify the task_list */
+    __asm__("cpsid  i");
+
     task_node *node = task_list.head;
     curr_task = node;
     if (curr_task == NULL) {
         /* Uh-oh, no tasks! */
+        __asm__("cpsie  i");
         panic_print("No tasks to run.");
     }
 
     /* As a workaround for lack of MPU support, check if the 
      * stack of the task we are switching from has overflowed */
     if (node->task->stack_base > node->task->stack_top) {
+        __asm__("cpsie  i");
         panic_print("Task has overflowed its stack.");
     }
 
@@ -105,6 +111,8 @@ void switch_task(void) {
         }
     }
 
+    __asm__("cpsie  i");
+
     /* mpu_stack_set(node->task->stack_base);   Sigh...maybe some day */
 
     if (node->task->running) {
@@ -129,7 +137,7 @@ void switch_task(void) {
 task_ctrl *create_task(void (*fptr)(void), uint8_t priority, uint32_t period) {
     task_ctrl *task;
     uint32_t *memory;
-
+    static uint32_t pid_source = 1;
     task = (task_ctrl *) kmalloc(sizeof(task_ctrl));
     if (task == NULL) {
         return NULL;
@@ -140,7 +148,12 @@ task_ctrl *create_task(void (*fptr)(void), uint8_t priority, uint32_t period) {
         kfree(task);
         return NULL;
     }
-
+    task->stack_base = memory;
+    task->stack_top  = memory + STKSIZE;
+    task->fptr       = fptr;
+    task->priority   = priority;
+    task->period     = period;
+    task->running    = 0;
     task->stack_base        = memory;
     task->stack_top         = memory + STKSIZE;
     task->fptr              = fptr;
@@ -152,6 +165,7 @@ task_ctrl *create_task(void (*fptr)(void), uint8_t priority, uint32_t period) {
 
     task->task_list_node    = NULL;
     task->periodic_node     = NULL;
+    task->pid = pid_source++;
 
     resource_setup(task);
     return task;

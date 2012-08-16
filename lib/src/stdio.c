@@ -1,25 +1,24 @@
 #include "types.h"
 #include "task.h"
 #include "mem.h"
-#include "resource.h"
 #include "string.h"
 #include "stdarg.h"
 #include "stdio.h"
+#include "semaphore.h"
+#include "resource.h"
 
 void puts(char *s) {
-    write(0, s);
+    swrite(0, s);
 }
 
 char getc(void) {
-    return read(0);
+    char ret;
+    read(0, &ret, 1);
+    return ret;
 }
 
 void putc(char letter) {
-    char string[2];
-    string[0] = letter;
-    string[1] = '\0';
-
-    puts(string);
+    write(0, &letter, 1);
 }
 
 #define PS 256
@@ -49,7 +48,6 @@ void printx(char *s, uint8_t *x, int n) {
 
 void printf(char *fmt, ...) {
     va_list ap;
-
     va_start(ap, fmt);
 
     while (*fmt) {
