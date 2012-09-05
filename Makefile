@@ -1,14 +1,68 @@
-SRCS = bootmain.c mem.c mpu.c buddy.c usart.c interrupt.c usermode.c systick.c context.c task.c semaphore.c spi.c tim.c resource.c 
-SRCS += shell.c blink.c top.c uname.c ipctest.c accel.c
-SRCS += discovery_accel.c shared_mem.c
-SRCS += string.c math.c stdio.c
-ASM_SRCS = bootasm.S memasm.S
+# End users specify objects here
 
-LINK_SCRIPT = kernel.ld
+# usr/shell/
+USR_VPATH = usr/shell/
+USR_CFLAGS = -Iusr/shell/
+USR_SRCS = main.c shell.c accel.c blink.c ghetto_gyro.c ipctest.c top.c uname.c lowpass.c
+
+##########################
+LINK_SCRIPT = boot/link.ld
+
+UNIT_TESTS ?= 0
+
+ifeq ($(UNIT_TESTS),1)
+# usr/unit_tests/
+VPATH = usr/unit_tests/
+CFLAGS = 
+SRCS = main.c
+else
+VPATH = $(USR_VPATH)
+CFLAGS = $(USR_CFLAGS)
+SRCS = $(USR_SRCS)
+endif
+
+# boot/
+VPATH += boot/
+SRCS += boot_main.c
+ASM_SRCS += boot_asm.S
+
+# dev/
+VPATH += dev/
+SRCS += resource.c shared_mem.c
+
+# dev/hw
+VPATH += dev/hw/
+SRCS += i2c.c spi.c systick.c tim.c usart.c
+
+# dev/periph/
+VPATH += dev/periph/
+SRCS += 9dof_gyro.c discovery_accel.c
+
+# kernel/
+VPATH += kernel/
+SRCS += fault.c semaphore.c
+
+# kernel/sched/
+VPATH += kernel/sched/
+SRCS += kernel_task.c sched_end.c sched_interrupts.c sched_new.c sched_start.c sched_swap.c sched_switch.c
+ASM_SRCS += sched_asm.S
+
+# lib/
+VPATH += lib/
+SRCS += stdio.c string.c
+
+# lib/math/
+VPATH += lib/math/
+SRCS += math_newlib.c math_other.c math_pow.c math_trig.c
+
+# mm/
+VPATH += mm/
+SRCS += mm_free.c mm_init.c mm_malloc.c mm_space.c
 
 # all the files will be generated with this name (main.elf, main.bin, main.hex, etc)
 
-PROJ_NAME=os
+PROJ_NAME=f4os
+PREFIX = ./out
 
 # that's it, no need to change anything below this line!
 
@@ -18,7 +72,7 @@ CC=arm-none-eabi-gcc
 LD=arm-none-eabi-ld
 OBJCOPY=arm-none-eabi-objcopy
 
-CFLAGS  = -g3 -Wall --std=gnu99 -I./inc/ -I./inc/shell/ -I./lib/inc/ -I./inc/dev/hw/ -I./inc/dev/
+CFLAGS += -g3 -Wall --std=gnu99 -isystem include/
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork -Xassembler -mimplicit-it=thumb
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -nostdlib -ffreestanding
 CFLAGS += -Wdouble-promotion -fsingle-precision-constant -fshort-double
@@ -31,60 +85,61 @@ CFLAGS += -D BUILD_TIME='$(DATE)' -D BUILD_REV=$(REV)
 
 LFLAGS=
 
-VPATH = src/ src/shell/ lib/src/ src/dev/ src/dev/hw/
-
 ###################################################
 
-OBJS = $(SRCS:.c=.o)
-OBJS += $(ASM_SRCS:.S=.o)
+OBJS = $(addprefix $(PREFIX)/, $(SRCS:.c=.o))
+OBJS += $(addprefix $(PREFIX)/, $(ASM_SRCS:.S=.o))
 
 ###################################################
 
 .PHONY: proj unoptimized
 
 all: CFLAGS += -O2
-all: proj
+all: $(PREFIX) proj
 
 unoptimized: CFLAGS += -O0
-unoptimized: proj
+unoptimized: $(PREFIX) proj
+
+unit-tests:
+	UNIT_TESTS=1 $(MAKE) -e
 
 again: clean all
 
 # Flash the STM32F4
 burn:
-	st-flash write $(PROJ_NAME).bin 0x8000000
+	st-flash write $(PREFIX)/$(PROJ_NAME).bin 0x8000000
 
 # Create tags
 ctags:
 	ctags -R .
 
-%.o : %.S
+$(PREFIX)/%.o : %.S
 	$(CC) -MD -c $(CFLAGS) $< -o $@ 
-	@cp $*.d $*.P; \
+	@cp $(PREFIX)/$*.d $(PREFIX)/$*.P; \
 		sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-			-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.P; \
-		rm -f $*.d
+			-e '/^$$/ d' -e 's/$$/ :/' < $(PREFIX)/$*.d >> $(PREFIX)/$*.P; \
+		rm -f $(PREFIX)/$*.d
 
--include $(ASM_SRCS:.S=.P)
+-include $(addprefix $(PREFIX)/, $(ASM_SRCS:.S=.P))
 
-%.o : %.c
+$(PREFIX)/%.o : %.c
 	$(CC) -MD -c $(CFLAGS) $< -o $@ 
-	@cp $*.d $*.P; \
+	@cp $(PREFIX)/$*.d $(PREFIX)/$*.P; \
 		sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
-			-e '/^$$/ d' -e 's/$$/ :/' < $*.d >> $*.P; \
-		rm -f $*.d
+			-e '/^$$/ d' -e 's/$$/ :/' < $(PREFIX)/$*.d >> $(PREFIX)/$*.P; \
+		rm -f $(PREFIX)/$*.d
 
--include $(SRCS:.c=.P)
+-include $(addprefix $(PREFIX)/, $(SRCS:.c=.P))
 
-proj: 	$(PROJ_NAME).elf
+proj: 	$(PREFIX)/$(PROJ_NAME).elf
 
-$(PROJ_NAME).elf: $(OBJS) 
+$(PREFIX):
+	mkdir -p $(PREFIX)
+
+$(PREFIX)/$(PROJ_NAME).elf: $(OBJS) 
 	$(LD) $^ -o $@ $(LFLAGS) -T $(LINK_SCRIPT)
-	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
-	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
+	$(OBJCOPY) -O ihex $(PREFIX)/$(PROJ_NAME).elf $(PREFIX)/$(PROJ_NAME).hex
+	$(OBJCOPY) -O binary $(PREFIX)/$(PROJ_NAME).elf $(PREFIX)/$(PROJ_NAME).bin
 
 clean:
-	-rm -f *.o *.i *.s *.P
-	-rm -f $(PROJ_NAME).elf
-	-rm -f $(PROJ_NAME).hex
-	-rm -f $(PROJ_NAME).bin
+	-rm -rf $(PREFIX)
