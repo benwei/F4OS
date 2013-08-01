@@ -12,3 +12,4 @@ out/
 tags
 core
 lorem.py
+*.a
