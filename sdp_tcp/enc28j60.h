@@ -1,4 +1,4 @@
-#include "gpio.h"
+#include <stm32f4xx_gpio.h>
 
 #ifndef __ENC28J60_H
 #define __ENC28J60_H
@@ -252,7 +252,7 @@
 //#define MAX_FRAMELEN     600
 
 #define         GPIO_ENC28J60                GPIOA
-#define 	ENC28J60_CS	 		GPIO_Pin_4
+#define 	ENC28J60_CS	 		GPIO_Pin_7
 #define 	ENC28J60_CSL()		GPIO_ResetBits(GPIO_ENC28J60, ENC28J60_CS)
 #define 	ENC28J60_CSH()		GPIO_SetBits(GPIO_ENC28J60, ENC28J60_CS)
 

@@ -5,20 +5,14 @@ AR=arm-none-eabi-ar
 
 OBJCOPY=arm-none-eabi-objcopy
 
-CFILES += enc_main.c
-#CFILES += Retarget.c
-#CFILES += STM32_Init.c
-#CFILES += USART_Pol.c
-CFILES += ip_arp_udp_tcp.c
-CFILES += simple_server.c
-CFILES += enc28j60.c
-CFILES += spi_m.c
+include build.mk
+CFILES += $(SDP_CFILES)
 
 SRCROOT=../
-INCLUDES = -ICMSIS/Device/ST/STM32F4xx/Include/ -ISTM32F4x7_ETH_Driver/inc
-INCLUDES += -ICMSIS/Include
-INCLUDES += -ISTM32F4xx_StdPeriph_Driver/inc
-INCLUDES += -I$(SRCROOT)arch/armv7m/chip/stm32f40x/include/ -I.
+INCLUDES += -I. -I$(SRCROOT)
+INCLUDES += -I../net/STM32F4xx_StdPeriph_Driver/inc/
+INCLUDES += -I../net/CMSIS/Device/ST/STM32F4xx/Include/
+INCLUDES += -I../net/CMSIS/Include/
 
 CFLAGS  = -g3 -Wall --std=gnu99 $(INCLUDES)
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork -Xassembler -mimplicit-it=thumb
@@ -36,7 +30,11 @@ OBJS=$(patsubst %.o,$(OBJ_DIR)/%.o,$(MOBJS))
 
 LIBETHA = libeth.a 
 
-all: prebuild $(LIBETHA)
+all: image
+	
+image: prebuild
+	make $(LIBETHA)
+	make -C ..
 
 prebuild:
 	mkdir -p obj

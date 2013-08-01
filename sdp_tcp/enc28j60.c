@@ -6,7 +6,8 @@
 static uint8_t Enc28j60Bank;
 static uint16_t NextPacketPtr;
 
-#define GPIO_Pin_4 4
+#define GPIO_Pin_7 0x1000
+#define GPIO_ENC28J60 GPIOE
 
 unsigned char enc28j60ReadOp(unsigned char op, unsigned char address)
 	{
@@ -206,12 +207,13 @@ void enc28j60Init(unsigned char* macaddr)
 	enc28j60Write(MAADR1, macaddr[4]);
 	enc28j60Write(MAADR0, macaddr[5]);
 
-	printf("MAADR5 = 0x%x\r\n", enc28j60Read(MAADR5));
+	/* printf("MAADR5 = 0x%x\r\n", enc28j60Read(MAADR5));
 	printf("MAADR4 = 0x%x\r\n", enc28j60Read(MAADR4));
 	printf("MAADR3 = 0x%x\r\n", enc28j60Read(MAADR3));
 	printf("MAADR2 = 0x%x\r\n", enc28j60Read(MAADR2));
 	printf("MAADR1 = 0x%x\r\n", enc28j60Read(MAADR1));
 	printf("MAADR0 = 0x%x\r\n", enc28j60Read(MAADR0));
+    */
 
 	enc28j60PhyWrite(PHCON1, PHCON1_PDPXMD);//enc28j60PhyWrite(0x00, 0x0100);
 

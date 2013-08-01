@@ -1,9 +1,9 @@
 //#include "includes.h"
-#include <STM32F10X_SPI.h>
-#include <STM32F10X_GPIO.h>
-#include <STM32F10X_RCC.h>
-//SPI1初始化
-void	SPI1_Init(void)
+#include <stm32f4xx_spi.h>
+#include <stm32f4xx_gpio.h>
+#include <stm32f4xx_rcc.h>
+
+void init_spi1(void)
 	{
 	SPI_InitTypeDef  SPI_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -13,18 +13,18 @@ void	SPI1_Init(void)
 	
 	/* Configure SPI1 pins:  SCK, MISO and MOSI */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
         
         GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 ;
-        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;//推挽式输出
+        GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
         GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
         GPIO_Init(GPIOA, &GPIO_InitStructure);
         
        GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4 | GPIO_Pin_5;
-       GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;//推挽式输出
+       GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
        GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
        GPIO_Init(GPIOC, &GPIO_InitStructure);
 	/* SPI1 configuration */ 

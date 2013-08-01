@@ -8,7 +8,6 @@
 #include <kernel/fault.h>
 
 #include <dev/hw/usart.h>
-#include <dev/hw/spi.h>
 #include <dev/hw/i2c.h>
 #include <dev/hw/tim.h>
 

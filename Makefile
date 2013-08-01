@@ -3,7 +3,7 @@
 # usr/shell/
 USR_VPATH = usr/shell/
 USR_CFLAGS = -Iusr/shell/
-USR_SRCS = main.c shell.c accel.c blink.c ghetto_gyro.c ipctest.c top.c uname.c lowpass.c hello.c mynet.c
+USR_SRCS = main.c shell.c blink.c ghetto_gyro.c ipctest.c top.c uname.c lowpass.c hello.c mynet.c
 
 ##########################
 LINK_SCRIPT = boot/link.ld
@@ -32,11 +32,11 @@ SRCS += resource.c shared_mem.c
 
 # dev/hw
 VPATH += dev/hw/
-SRCS += i2c.c spi.c systick.c tim.c usart.c
+SRCS += i2c.c systick.c tim.c usart.c
 
 # dev/periph/
 VPATH += dev/periph/
-SRCS += 9dof_gyro.c discovery_accel.c
+SRCS += 9dof_gyro.c 
 
 # kernel/
 VPATH += kernel/
@@ -72,7 +72,7 @@ CC=arm-none-eabi-gcc
 LD=arm-none-eabi-ld
 OBJCOPY=arm-none-eabi-objcopy
 
-CFLAGS += -g3 -Wall --std=gnu99 -isystem include/
+CFLAGS += -g3 -Wall --std=gnu99 -isystem include/ -isystem . -I./sdp_tcp
 CFLAGS += -mlittle-endian -mthumb -mcpu=cortex-m4 -mthumb-interwork -Xassembler -mimplicit-it=thumb
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16 -nostdlib -ffreestanding
 CFLAGS += -Wdouble-promotion -fsingle-precision-constant -fshort-double
@@ -86,10 +86,15 @@ CFLAGS += -D BUILD_TIME='$(DATE)' -D BUILD_REV=$(REV)
 LFLAGS=
 
 ###################################################
+# network
+SRCROOT=.
+include sdp_tcp/build.mk
+OBJS += $(addprefix sdp_tcp/obj/, $(SDP_CFILES:.c=.o))
+CFLAGS += $(SDP_INCS)
 
-OBJS = $(addprefix $(PREFIX)/, $(SRCS:.c=.o))
+//OBJS += ./sdp_tcp/libeth.a
+OBJS += $(addprefix $(PREFIX)/, $(SRCS:.c=.o))
 OBJS += $(addprefix $(PREFIX)/, $(ASM_SRCS:.S=.o))
-OBJS += ./sdp_tcp/libeth.a
 
 ###################################################
 
