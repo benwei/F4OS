@@ -1,6 +1,6 @@
 //#include "includes.h"
 #include "enc28j60.h"
-#include "spi.h"
+#include <stm32f4xx_spi.h>
 #include <stdio.h>
 
 static uint8_t Enc28j60Bank;
