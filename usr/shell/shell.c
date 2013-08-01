@@ -15,6 +15,7 @@
 #include "ghetto_gyro.h"
 #include "lowpass.h"
 #include "hello.h"
+#include "mynet.h"
 
 struct command {
     char *name;
@@ -24,6 +25,7 @@ struct command {
 const struct command valid_commands[] = {{"blink",  &blink},
                                          {"help",   &help},
                                          {"hello",  &hello},
+                                         {"net",    &hello_net},
                                          {"top",    &top},
                                          {"uname",  &uname},
                                          {"ipctest", &ipctest},

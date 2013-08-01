@@ -3,7 +3,7 @@
 # usr/shell/
 USR_VPATH = usr/shell/
 USR_CFLAGS = -Iusr/shell/
-USR_SRCS = main.c shell.c accel.c blink.c ghetto_gyro.c ipctest.c top.c uname.c lowpass.c hello.c
+USR_SRCS = main.c shell.c accel.c blink.c ghetto_gyro.c ipctest.c top.c uname.c lowpass.c hello.c mynet.c
 
 ##########################
 LINK_SCRIPT = boot/link.ld
@@ -89,6 +89,7 @@ LFLAGS=
 
 OBJS = $(addprefix $(PREFIX)/, $(SRCS:.c=.o))
 OBJS += $(addprefix $(PREFIX)/, $(ASM_SRCS:.S=.o))
+OBJS += ./sdp_tcp/libeth.a
 
 ###################################################
 

@@ -12,6 +12,7 @@ CFILES += enc_main.c
 CFILES += ip_arp_udp_tcp.c
 CFILES += simple_server.c
 CFILES += enc28j60.c
+CFILES += spi_m.c
 
 SRCROOT=../
 INCLUDES = -ICMSIS/Device/ST/STM32F4xx/Include/ -ISTM32F4x7_ETH_Driver/inc
