@@ -53,6 +53,7 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "sdp_common.h"
 #include "stm32f4xx_rcc.h"
 
 /** @addtogroup STM32F4xx_StdPeriph_Driver

@@ -84,6 +84,7 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
+#include "sdp_common.h"
 #include "stm32f4xx_i2c.h"
 #include "stm32f4xx_rcc.h"
 

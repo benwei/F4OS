@@ -32,6 +32,3 @@ int strcmp(const char *s1, const char *s2)
 	return (*(unsigned char *) s1) - (*(unsigned char *) s2);
 }
 
-void assert_param(void *n) {
-    // dummy
-}

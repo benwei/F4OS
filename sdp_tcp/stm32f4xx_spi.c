@@ -149,6 +149,7 @@
   */ 
 
 /* Includes ------------------------------------------------------------------*/
+#include "sdp_common.h"
 #include "stm32f4xx_spi.h"
 #include "stm32f4xx_rcc.h"
 
