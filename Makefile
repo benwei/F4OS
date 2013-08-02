@@ -89,10 +89,12 @@ LFLAGS=
 # network
 SRCROOT=.
 include sdp_tcp/build.mk
-OBJS += $(addprefix sdp_tcp/obj/, $(SDP_CFILES:.c=.o))
+VPATH += sdp_tcp/
+SRCS += $(SDP_CFILES)
+// OBJS += $(addprefix sdp_tcp/obj/, $(SDP_CFILES:.c=.o))
+
 CFLAGS += $(SDP_INCS)
 
-//OBJS += ./sdp_tcp/libeth.a
 OBJS += $(addprefix $(PREFIX)/, $(SRCS:.c=.o))
 OBJS += $(addprefix $(PREFIX)/, $(ASM_SRCS:.S=.o))
 

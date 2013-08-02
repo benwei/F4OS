@@ -25,7 +25,8 @@
  * http://www.icdev.com.cn/?2213/
  * Host chip: ADUC7026
 **********************************************/
-//#include <includes.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include "enc28j60.h"
 #include "ip_arp_udp_tcp.h"

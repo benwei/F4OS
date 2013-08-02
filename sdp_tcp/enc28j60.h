@@ -256,8 +256,6 @@
 #define 	ENC28J60_CSL()		GPIO_ResetBits(GPIO_ENC28J60, ENC28J60_CS)
 #define 	ENC28J60_CSH()		GPIO_SetBits(GPIO_ENC28J60, ENC28J60_CS)
 
-//SPI1初始化
-//void	ENC28J60_Init(void);
 unsigned char enc28j60ReadOp(unsigned char op, unsigned char address);
 void 	enc28j60WriteOp(unsigned char op, unsigned char address, unsigned char data);
 void 	enc28j60ReadBuffer(unsigned int len, unsigned char* data);
@@ -267,13 +265,9 @@ unsigned char enc28j60Read(unsigned char address);
 void 	enc28j60Write(unsigned char address, unsigned char data);
 void 	enc28j60PhyWrite(unsigned char address, unsigned int data);
 void 	enc28j60clkout(unsigned char clk);
-void 	enc28j60Init(unsigned char* macaddr);
+int     enc28j60Init(unsigned char* macaddr);
 unsigned char enc28j60getrev(void);
 void 	enc28j60PacketSend(unsigned int len, unsigned char* packet);
 unsigned int enc28j60PacketReceive(unsigned int maxlen, unsigned char* packet);
-void enc28j60Init(unsigned char* macaddr);
-
-//SPI1读写一字节数据
-//INT8U	ENC28J60_ReadWrite(INT8U writedat);
 
 #endif

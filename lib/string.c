@@ -155,3 +155,18 @@ int strncmp(char *s, char *p, uint32_t n) {
         return -1;
     }
 }
+
+char *strcpy(char *dest, const char *src)
+{
+	while(*src) *dest++ = *src++;
+    return dest;
+}
+
+typedef uint32_t size_t;
+size_t strlen(const char *s)
+{
+	const char *end = s;
+	while(*end++ != 0) ;
+	return (size_t)(end - s) - 1;
+}
+

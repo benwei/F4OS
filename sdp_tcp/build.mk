@@ -2,7 +2,7 @@
 SDP_CFILES += ip_arp_udp_tcp.c
 SDP_CFILES += simple_server.c
 SDP_CFILES += enc28j60.c
-SDP_CFILES += string.c
+//SDP_CFILES += string.c
 SDP_CFILES += spi.c
 SDP_CFILES += stm32f4xx_gpio.c
 SDP_CFILES += stm32f4xx_rcc.c

@@ -9,7 +9,7 @@ include build.mk
 CFILES += $(SDP_CFILES)
 
 SRCROOT=../
-INCLUDES += -I. -I$(SRCROOT)
+INCLUDES += -I. -isystem $(SRCROOT)/include
 INCLUDES += -I../net/STM32F4xx_StdPeriph_Driver/inc/
 INCLUDES += -I../net/CMSIS/Device/ST/STM32F4xx/Include/
 INCLUDES += -I../net/CMSIS/Include/
@@ -21,7 +21,6 @@ CFLAGS += -Wdouble-promotion -fsingle-precision-constant -fshort-double
 CFLAGS += -O2
 
 CFLAGS += -D BUILD_TIME='"$(shell date)"' -D BUILD_REV=$(shell git shortlog | grep -E '^[ ]+\w+' | wc -l | sed -e "s/^[ ]*//g")
-#CFLAGS += -save-temps --verbose -Xlinker --verbose
 
 MOBJS=$(CFILES:.c=.o)
 
