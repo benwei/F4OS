@@ -116,6 +116,14 @@
 #define PHIR             0x13
 #define PHLCON           0x14
 
+// PHSTAT2 Registers Bits
+#define PHSTAT2_TXSTAT   (1<< 13)
+#define PHSTAT2_RXSTAT   (1<< 12)
+#define PHSTAT2_COLSTAT  (1<< 12)
+#define PHSTAT2_LSTAT    (1<< 10)
+#define PHSTAT2_DPXSTAT  (1<< 9)
+#define PHSTAT2_PLRITY   (1<< 5)
+
 // ENC28J60 ERXFCON Register Bit Definitions
 #define ERXFCON_UCEN     0x80
 #define ERXFCON_ANDOR    0x40
@@ -251,7 +259,7 @@
 #define        MAX_FRAMELEN        1500        // (note: maximum ethernet frame length would be 1518)
 //#define MAX_FRAMELEN     600
 
-#define         GPIO_ENC28J60                GPIOA
+#define         GPIO_ENC28J60                GPIOE
 #define 	ENC28J60_CS	 		GPIO_Pin_7
 #define 	ENC28J60_CSL()		GPIO_ResetBits(GPIO_ENC28J60, ENC28J60_CS)
 #define 	ENC28J60_CSH()		GPIO_SetBits(GPIO_ENC28J60, ENC28J60_CS)
@@ -269,5 +277,6 @@ int     enc28j60Init(unsigned char* macaddr);
 unsigned char enc28j60getrev(void);
 void 	enc28j60PacketSend(unsigned int len, unsigned char* packet);
 unsigned int enc28j60PacketReceive(unsigned int maxlen, unsigned char* packet);
+unsigned char enc28j60PhyRead(unsigned char address);
 
 #endif

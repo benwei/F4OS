@@ -10,6 +10,7 @@
 #include <dev/hw/usart.h>
 #include <dev/hw/i2c.h>
 #include <dev/hw/tim.h>
+#include "spi.h"
 
 static void clock(void) __attribute__((section(".kernel")));
 static void power_led(void) __attribute__((section(".kernel")));
@@ -22,10 +23,13 @@ int os_start(void) {
     //mpu_setup();
     init_heap();
     init_usart1();
-    init_spi1();
     init_i2c1();
+    init_spi1();
     init_tim2();
 
+#if 1
+    puts("\r\nWelcome to F4OS...\r\n");
+#else
     puts("\r\n\r\n\r\nWelcome to...\r\n");
     puts("\r\n"
          "88888888888      ,d8      ,ad8888ba,     ad88888ba   \r\n"
@@ -38,7 +42,7 @@ int os_start(void) {
          "88                88      `\"Y8888Y\"\'     \"Y88888P\"   \r\n"
          "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n"
          "\r\n");
-
+#endif
     start_sched();
     panic_print("Task switching ended.");
     return 0;

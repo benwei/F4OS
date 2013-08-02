@@ -7,7 +7,13 @@
 static uint8_t Enc28j60Bank;
 static uint16_t NextPacketPtr;
 
-#define GPIO_ENC28J60 GPIOA
+void delay(unsigned int t)
+{
+    t = t * 50;
+    while (t > 0){
+        t--;
+    }
+}
 
 unsigned char enc28j60ReadOp(unsigned char op, unsigned char address)
 {
@@ -34,9 +40,14 @@ void enc28j60WriteOp(unsigned char op, unsigned char address, unsigned char data
 
     ENC28J60_CSL();
     // issue write command
-    dat = op | (address & ADDR_MASK);//写指令数据
+    dat = op | (address & ADDR_MASK);
+
+#if 1
     SPI1_ReadWrite(dat);
-    // write data
+#else
+    // char r = SPI1_ReadWrite(dat);
+    // printf("issue op=0x%x, addr=0x%x, data=0x%x, r=0x%x\r\n", op, address, data, r);
+#endif
     dat = data;
     SPI1_ReadWrite(dat);
     ENC28J60_CSH();
@@ -101,6 +112,19 @@ void enc28j60Write(unsigned char address, unsigned char data)
     enc28j60WriteOp(ENC28J60_WRITE_CTRL_REG, address, data);
 }
 
+unsigned char enc28j60PhyRead(unsigned char address)
+{
+    // set the PHY register address
+    enc28j60Write(MIREGADR, address);
+    enc28j60Write(MICMD, MICMD_MIIRD);
+    delay(15);
+    while(enc28j60Read(MISTAT) & MISTAT_BUSY);
+
+    // reset reading bit
+    enc28j60Write(MICMD, 0x00);
+    return enc28j60Read(MIRDH);
+}
+
 void enc28j60PhyWrite(unsigned char address, unsigned int data)
 {
     // set the PHY register address
@@ -111,8 +135,7 @@ void enc28j60PhyWrite(unsigned char address, unsigned int data)
     // wait until the PHY write completes
     while(enc28j60Read(MISTAT) & MISTAT_BUSY)
     {
-        //Del_10us(1);
-        //_nop_();
+        delay(15);
     }
 }
 
@@ -122,33 +145,23 @@ void enc28j60clkout(unsigned char clk)
     enc28j60Write(ECOCON, clk & 0x7);
 }
 
+
 int enc28j60Init(unsigned char* macaddr)
 {
     int ret = 0;
     // initialize I/O
-    puts("enc28j60Init\r\n");
+    puts("enc28j60 Initializing...\r\n");
 
-    ENC28J60_CSH();  //选通脚拉高
+    // defaut state the CS should high
+    ENC28J60_CSH();
 
     // perform system reset
-    enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);//系统软件复位指令
-    //	Del_1ms(250);
-    // check CLKRDY bit to see if reset is complete
-    // The CLKRDY does not work. See Rev. B4 Silicon Errata point. Just wait.
-    //while(!(enc28j60Read(ESTAT) & ESTAT_CLKRDY));
-    // do bank 0 stuff
-    // initialize receive buffer
-    // 16-bit transfers, must write low byte first
-    // set receive buffer start address
-    //在接收数据包前，必须编程ERXST 和ERXND 指针来
-    //对接收缓冲器进行初始化。ERXST 和ERXND 之间的
-    //存储空间（包括这两个地址）专供接收硬件使用。 建议
-    //用偶地址编程ERXST 指针
-    NextPacketPtr = RXSTART_INIT;//RXSTART_INIT     0x0
-    // Rx start接收缓冲设区置
-    enc28j60Write(ERXSTL, RXSTART_INIT&0xFF);//#define ERXSTL           (0x08|0x00)
+    enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
+    delay(1);
+
+    NextPacketPtr = RXSTART_INIT;
+    enc28j60Write(ERXSTL, RXSTART_INIT&0xFF);
     enc28j60Write(ERXSTH, RXSTART_INIT>>8);
-    // set receive pointer address设置接收缓冲区地址
     enc28j60Write(ERXRDPTL, RXSTART_INIT&0xFF);
     enc28j60Write(ERXRDPTH, RXSTART_INIT>>8);
     // RX end
